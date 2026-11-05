@@ -24,7 +24,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -51,6 +51,15 @@ jobs:
         env:
           SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
         run: python3 leads.py run --days 365
+
+      # Owner names, Instagram, websites, emails. Never fails the job: the page still builds.
+      - name: Find owners, Instagram and websites
+        continue-on-error: true
+        timeout-minutes: 25
+        env:
+          SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+        run: python3 enrich.py
 
       - name: Build page
         run: |
