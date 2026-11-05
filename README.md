@@ -80,6 +80,46 @@ earlier but needs a quick check (Google/Instagram) to find the actual location.
    signals + recency, minus 45 for corporate chains (they buy POS centrally,
    so independents float to the top; chains stay in the table, flagged in `chain`).
 
+## Owner names, Instagram and contact info (`enrich.py`)
+
+After each pull, `python3 enrich.py` fills an `enrichment` table (kept across
+runs) and adds these columns to the CSV and the page: `owner`, `owner_role`,
+`owners_all`, `email`, `website`, `instagram`, `instagram_conf`, `facebook`,
+`tiktok`, `osm_phone`, `hours`, `shop_address`, `enrich_sources`.
+
+| Step | Where it looks | What it gets |
+|---|---|---|
+| owners | Columns mapped as `owner` / `owner_org` / `email` in `sources.json` (CO registered agent, NY chairman / process name, CT business email) | owner or agent name, email |
+| owners | Chicago **Business Owners** dataset (via license → account number) | owner name + title (president, managing member, sole proprietor…) |
+| owners | CT **Business Registry – Principals** | principal names |
+| owners | Oregon new-business filings (all associated names) | members, managers, registrant |
+| owners | TX **Active Sales Tax Permit Holders** (by taxpayer number) | the actual storefront address and first sales date for TX state filings |
+| osm | OpenStreetMap cafes via the Overpass API (cached a week per state) | website, Instagram, Facebook, phone, hours, matched by address or location + name |
+| search | Brave Search API, **only if `BRAVE_API_KEY` is set** (free tier, ~45 leads a day) | Instagram handle + website for the top independent leads |
+| web | The shop's home page, at most once a month | Instagram / Facebook / TikTok links, email, phone |
+| manual | `enrichment_manual.json` | anything you checked by hand; wins over the rest |
+
+`instagram_conf`: **high** = handle matches the name and the city (or came
+from the shop's own site / OpenStreetMap), **medium** = name matches but the
+city wasn't confirmed (shown as "likely"), **verified** = checked by hand.
+Instagram itself is never fetched.
+
+Owner names are from public filings and are often a registered agent, an
+officer or a filing contact rather than the day-to-day owner, so verify
+before outreach. To turn on search: get a free key at
+https://brave.com/search/api/, then add it as a repo secret named
+`BRAVE_API_KEY` (Settings → Secrets and variables → Actions).
+
+```bash
+python3 enrich.py                      # all steps
+python3 enrich.py --steps owners,osm   # just some
+python3 enrich.py stats
+```
+
+When adding a source, map an owner / applicant / registrant column to
+`fields.owner` (and a company name to `fields.owner_org`, an email to
+`fields.email`) and set `"owner_role"` on the source, e.g. `"applicant"`.
+
 ## Database
 
 - `leads`: one row per business location. Key columns: `name`, `address`,

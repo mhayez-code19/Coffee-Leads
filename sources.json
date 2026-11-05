@@ -31,7 +31,8 @@
         "status": "results",
         "lat": "latitude",
         "lon": "longitude",
-        "date": "inspection_date"
+        "date": "inspection_date",
+        "license": "license_"
       }
     },
     {
@@ -63,7 +64,8 @@
         "status": "license_status",
         "lat": "latitude",
         "lon": "longitude",
-        "date": "license_start_date"
+        "date": "license_start_date",
+        "account": "account_number"
       },
       "exclude_status": "^(REV|INQ)$"
     },
@@ -220,7 +222,9 @@
         "category": "naics_code",
         "event_type": "business_type",
         "status": "status",
-        "date": "date_registration"
+        "date": "date_registration",
+        "biz_id": "id",
+        "email": "business_email_address"
       },
       "exclude_status": "dissolved|revoked|withdrawn|forfeited|cancelled"
     },
@@ -248,9 +252,15 @@
         "zip": "principalzipcode",
         "event_type": "entitytype",
         "status": "entitystatus",
-        "date": "entityformdate"
+        "date": "entityformdate",
+        "owner": [
+          "agentfirstname",
+          "agentlastname"
+        ],
+        "owner_org": "agentorganizationname"
       },
-      "exclude_status": "dissolved|withdrawn|expired|administratively"
+      "exclude_status": "dissolved|withdrawn|expired|administratively",
+      "owner_role": "registered agent"
     },
     {
       "id": "ny_state_new_corporations",
@@ -274,9 +284,12 @@
         "state": "location_state|dos_process_state",
         "zip": "location_zip|dos_process_zip",
         "event_type": "entity_type",
-        "date": "initial_dos_filing_date"
+        "date": "initial_dos_filing_date",
+        "owner": "chairman_name|dos_process_name",
+        "owner_org": "registered_agent_name"
       },
-      "_note": "Address is usually the service-of-process address, often the owner or an agent"
+      "_note": "Address is usually the service-of-process address, often the owner or an agent",
+      "owner_role": "chairman / process contact"
     },
     {
       "id": "oregon_new_businesses",
@@ -329,6 +342,716 @@
       },
       "drop_unless_state": "TX",
       "_note": "taxpayer_address is the mailing address; often the owner, not the shop"
+    },
+    {
+      "id": "montgomery_md_preopening_inspections",
+      "jurisdiction": "Montgomery County, MD",
+      "state": "MD",
+      "level": "county",
+      "type": "socrata",
+      "domain": "data.montgomerycountymd.gov",
+      "dataset": "dkrp-gr48",
+      "portal_url": "https://data.montgomerycountymd.gov/d/dkrp-gr48",
+      "signal": "pre_opening_inspection",
+      "date_field": "inspection_start_date",
+      "filter_fields": [
+        "business_name"
+      ],
+      "extra_where": "inspection_type like '%Pre-Opening%'",
+      "_note": "One row per checklist item; rows collapse on inspection_number.",
+      "fields": {
+        "id": "inspection_number",
+        "name": "business_name",
+        "owner": "owner",
+        "address": "address",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "category": "business_type",
+        "event_type": "inspection_type",
+        "status": "status",
+        "date": "inspection_start_date"
+      }
+    },
+    {
+      "id": "pa_new_business_filings",
+      "jurisdiction": "Pennsylvania (state)",
+      "state": "PA",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.pa.gov",
+      "dataset": "xvd7-5r2c",
+      "portal_url": "https://data.pa.gov/d/xvd7-5r2c",
+      "signal": "business_registration",
+      "date_field": "creationdate",
+      "filter_fields": [
+        "business_name"
+      ],
+      "drop_unless_state": "PA",
+      "_note": "One row per organizer/incorporator; owner = the person who filed.",
+      "fields": {
+        "id": "filing_number",
+        "name": "business_name",
+        "owner": [
+          "first_name",
+          "last_name"
+        ],
+        "address": "address_line1",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "event_type": "typeofbusinessregistration",
+        "date": "creationdate"
+      }
+    },
+    {
+      "id": "philadelphia_business_licenses",
+      "jurisdiction": "Philadelphia, PA",
+      "state": "PA",
+      "level": "city",
+      "type": "arcgis",
+      "url": "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/BUSINESS_LICENSES/FeatureServer/0",
+      "portal_url": "https://opendataphilly.org/datasets/licenses-and-inspections-business-licenses/",
+      "signal": "new_business_license",
+      "date_field": "initialissuedate",
+      "filter_fields": [
+        "business_name"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "default_city": "Philadelphia",
+      "exclude_status": "inactive|revoked",
+      "fields": {
+        "id": "licensenum",
+        "name": "business_name",
+        "alt_name": "legalname",
+        "owner": "ownercontact1name",
+        "address": "address",
+        "zip": "zip",
+        "category": "licensetype",
+        "status": "licensestatus",
+        "date": "initialissuedate"
+      }
+    },
+    {
+      "id": "dc_basic_business_licenses",
+      "jurisdiction": "Washington, DC",
+      "state": "DC",
+      "level": "city",
+      "type": "arcgis",
+      "url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/FEEDS/DCRA/FeatureServer/0",
+      "portal_url": "https://opendata.dc.gov/datasets/basic-business-licenses",
+      "signal": "new_business_license",
+      "date_field": "INITIALISSUEDATE",
+      "filter_fields": [
+        "ENTITYTRADENAME",
+        "ENTITYNAME"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "default_city": "Washington",
+      "extra_where": "PREMISEINDC = 'Yes'",
+      "fields": {
+        "id": "CUSTOMERNUMBER",
+        "name": "ENTITYTRADENAME",
+        "alt_name": "ENTITYNAME",
+        "owner": [
+          "BUSINESSOWNERFIRSTNAME",
+          "BUSINESSOWNERLASTNAME"
+        ],
+        "address": "PREMISEADDRESS",
+        "category": "BUSINESSACTIVITY",
+        "status": "LICENSESTATUS",
+        "date": "INITIALISSUEDATE"
+      }
+    },
+    {
+      "id": "norfolk_new_business_licenses",
+      "jurisdiction": "Norfolk, VA",
+      "state": "VA",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.norfolk.gov",
+      "dataset": "dpi6-sct5",
+      "portal_url": "https://data.norfolk.gov/d/dpi6-sct5",
+      "signal": "new_business_license",
+      "date_field": "business_opened_date",
+      "filter_fields": [
+        "trading_as_name"
+      ],
+      "default_city": "Norfolk",
+      "fields": {
+        "id": [
+          "trading_as_name",
+          "business_opened_date"
+        ],
+        "name": "trading_as_name",
+        "owner": "primary_owner",
+        "address": "location_address",
+        "category": "naics",
+        "lat": "latitude",
+        "lon": "longitude",
+        "date": "business_opened_date"
+      }
+    },
+    {
+      "id": "wake_county_restaurant_openings",
+      "jurisdiction": "Wake County (Raleigh), NC",
+      "state": "NC",
+      "level": "county",
+      "type": "arcgis",
+      "url": "https://maps.wake.gov/arcgis/rest/services/Inspections/RestaurantInspectionsOpenData/MapServer/0",
+      "portal_url": "https://data-wake.opendata.arcgis.com/datasets/restaurants-in-wake-county",
+      "signal": "new_food_permit",
+      "date_field": "RESTAURANTOPENDATE",
+      "filter_fields": [
+        "NAME"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "event_label": "Food permit opened (Wake County Environmental Health)",
+      "fields": {
+        "id": "HSISID",
+        "name": "NAME",
+        "address": "ADDRESS1",
+        "city": "CITY",
+        "state": "STATE",
+        "zip": "POSTALCODE",
+        "phone": "PHONENUMBER",
+        "category": "FACILITYTYPE",
+        "date": "RESTAURANTOPENDATE"
+      }
+    },
+    {
+      "id": "orlando_business_tax_receipts",
+      "jurisdiction": "Orlando, FL",
+      "state": "FL",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.cityoforlando.net",
+      "dataset": "7388-4re5",
+      "portal_url": "https://data.cityoforlando.net/d/7388-4re5",
+      "signal": "new_business_license",
+      "date_field": "business_open_date",
+      "filter_fields": [
+        "business_name"
+      ],
+      "default_city": "Orlando",
+      "fields": {
+        "id": "case_number",
+        "name": "business_name",
+        "owner": "business_owner_name",
+        "email": "business_email",
+        "address": "business_address",
+        "phone": "phone",
+        "category": "license_type",
+        "status": "license_status",
+        "date": "business_open_date"
+      }
+    },
+    {
+      "id": "broward_local_business_tax",
+      "jurisdiction": "Broward County (Fort Lauderdale), FL",
+      "state": "FL",
+      "level": "county",
+      "type": "arcgis",
+      "url": "https://services.arcgis.com/JMAJrTsHNLrSsWf5/arcgis/rest/services/BrowardLocalTaxBusinessesEmailPhone/FeatureServer/0",
+      "portal_url": "https://geohub-bcgis.opendata.arcgis.com/",
+      "signal": "new_business_license",
+      "date_field": "Business_Start_Date",
+      "filter_fields": [
+        "Business_Name"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "event_label": "Local business tax receipt (business start)",
+      "fields": {
+        "id": "Account__",
+        "name": "DBA_Name|Business_Name",
+        "alt_name": "Business_Name",
+        "owner": "Owner_Name",
+        "email": "Business_Email",
+        "address": "Business_Address_Line_1",
+        "city": "Business_City",
+        "state": "Business_State",
+        "zip": "Business_Zip",
+        "phone": "Business_Phone",
+        "category": "Occupation_Desc_",
+        "date": "Business_Start_Date"
+      }
+    },
+    {
+      "id": "miami_dade_certificates_of_use",
+      "jurisdiction": "Miami-Dade County, FL",
+      "state": "FL",
+      "level": "county",
+      "type": "arcgis",
+      "url": "https://services.arcgis.com/8Pc9XBTAsYuxx9Ny/arcgis/rest/services/CertificateOfUse_New_gdb/FeatureServer/0",
+      "portal_url": "https://gis-mdc.opendata.arcgis.com/",
+      "signal": "new_business_license",
+      "date_field": "USER_ISSUED_DATE",
+      "filter_fields": [
+        "USER_DBA"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "event_label": "Certificate of Use issued",
+      "fields": {
+        "id": "USER_CERTIFICATE_NUMBER",
+        "name": "USER_DBA",
+        "alt_name": "USER_CORP_NAME",
+        "owner": "USER_APPLICANT_NAME",
+        "address": "USER_BUS_ADDRESS",
+        "city": "USER_BUS_CITY",
+        "state": "USER_BUS_STATE",
+        "zip": "USER_BUS_ZIPCODE",
+        "phone": "USER_PHONE1",
+        "category": "USER_BUSINSESS_USE",
+        "event_type": "USER_APPLICATION_TYPE",
+        "date": "USER_ISSUED_DATE"
+      }
+    },
+    {
+      "id": "nola_business_licenses",
+      "jurisdiction": "New Orleans, LA",
+      "state": "LA",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.nola.gov",
+      "dataset": "hjcd-grvu",
+      "portal_url": "https://data.nola.gov/d/hjcd-grvu",
+      "signal": "new_business_license",
+      "date_field": "businessstartdate",
+      "filter_fields": [
+        "businessname"
+      ],
+      "fields": {
+        "id": "businesslicensenumber",
+        "name": "businessname",
+        "owner": "ownername",
+        "address": "address",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "phone": "phonenumber",
+        "category": "businesstype",
+        "date": "businessstartdate"
+      }
+    },
+    {
+      "id": "baton_rouge_business_registrations",
+      "jurisdiction": "East Baton Rouge Parish, LA",
+      "state": "LA",
+      "level": "county",
+      "type": "socrata",
+      "domain": "data.brla.gov",
+      "dataset": "xw6s-bcqm",
+      "portal_url": "https://data.brla.gov/d/xw6s-bcqm",
+      "signal": "new_business_license",
+      "date_field": "topendate",
+      "filter_fields": [
+        "tname",
+        "tlegalname"
+      ],
+      "exclude_status": "^C$",
+      "fields": {
+        "id": "taccount",
+        "name": "tname",
+        "alt_name": "tlegalname",
+        "owner": "tcontactperson",
+        "address": "tphysicaladdress1",
+        "city": "tphysicalcity",
+        "state": "tphysicalstate",
+        "zip": "tphysicalzipcode5",
+        "category": "naicname",
+        "status": "tstatus",
+        "date": "topendate"
+      }
+    },
+    {
+      "id": "texas_new_sales_tax_outlets",
+      "jurisdiction": "Texas (state)",
+      "state": "TX",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.texas.gov",
+      "dataset": "jrea-zgmq",
+      "portal_url": "https://data.texas.gov/d/jrea-zgmq",
+      "signal": "new_business_license",
+      "date_field": "outlet_permit_issue_date",
+      "filter_fields": [
+        "outlet_name",
+        "taxpayer_name"
+      ],
+      "drop_unless_state": "TX",
+      "event_label": "Sales tax permit issued for a new outlet",
+      "extra_where": "outlet_naics_code between 722000 and 722999 OR outlet_naics_code in (311811, 311920, 445291, 445292, 445298)",
+      "_note": "Real storefront address (outlet), plus first-sales date in raw. Owner = the permit holder.",
+      "fields": {
+        "id": [
+          "taxpayer_number",
+          "outlet_number"
+        ],
+        "name": "outlet_name",
+        "alt_name": "taxpayer_name",
+        "owner": "taxpayer_name",
+        "address": "outlet_address",
+        "city": "outlet_city",
+        "state": "outlet_state",
+        "zip": "outlet_zip_code",
+        "category": "outlet_naics_code",
+        "date": "outlet_permit_issue_date"
+      }
+    },
+    {
+      "id": "kansas_city_business_licenses",
+      "jurisdiction": "Kansas City, MO",
+      "state": "MO",
+      "level": "city",
+      "type": "socrata",
+      "domain": "integration-kcmo.data.socrata.com",
+      "dataset": "3v5w-b33m",
+      "portal_url": "https://integration-kcmo.data.socrata.com/d/3v5w-b33m",
+      "signal": "new_business_license",
+      "date_field": "applicationdate",
+      "filter_fields": [
+        "companyname",
+        "doingbusinessas"
+      ],
+      "extra_where": "licensetype = 'GenTax'",
+      "exclude_status": "expired|inactive|closed|denied",
+      "fields": {
+        "id": "licenseid",
+        "name": "doingbusinessas",
+        "alt_name": "companyname",
+        "address": "address_concatenated",
+        "city": "city",
+        "state": "state",
+        "category": "description",
+        "event_type": "licenseclass",
+        "status": "licensestatus",
+        "date": "applicationdate"
+      }
+    },
+    {
+      "id": "denver_business_licenses",
+      "jurisdiction": "Denver, CO",
+      "state": "CO",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.colorado.gov",
+      "dataset": "s9wt-dsfz",
+      "portal_url": "https://data.colorado.gov/d/s9wt-dsfz",
+      "signal": "new_business_license",
+      "date_field": "application_date",
+      "filter_fields": [
+        "entity_name",
+        "trade_name"
+      ],
+      "default_city": "Denver",
+      "fields": {
+        "id": [
+          "bfn",
+          "license_type"
+        ],
+        "name": "trade_name",
+        "alt_name": "entity_name",
+        "owner_org": "entity_name",
+        "address": "address",
+        "zip": "zip",
+        "category": "license_type",
+        "status": "license_status",
+        "date": "application_date"
+      }
+    },
+    {
+      "id": "colorado_trade_names",
+      "jurisdiction": "Colorado (state)",
+      "state": "CO",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.colorado.gov",
+      "dataset": "u7sb-g482",
+      "portal_url": "https://data.colorado.gov/d/u7sb-g482",
+      "signal": "business_registration",
+      "date_field": "effectivedate",
+      "filter_fields": [
+        "tradenamedescription"
+      ],
+      "drop_unless_state": "CO",
+      "exclude_status": "withdrawn|expired|cancel",
+      "_note": "Trade name (DBA) filings: often a person opening a shop under a new name.",
+      "fields": {
+        "id": "mastertradenameid",
+        "name": "tradenamedescription",
+        "owner": [
+          "firstname",
+          "lastname"
+        ],
+        "owner_org": "registrantorganization",
+        "address": "address1",
+        "city": "city",
+        "state": "state",
+        "zip": "zipcode",
+        "status": "entitystatus",
+        "date": "effectivedate"
+      }
+    },
+    {
+      "id": "king_county_first_inspections",
+      "jurisdiction": "King County (Seattle), WA",
+      "state": "WA",
+      "level": "county",
+      "type": "socrata",
+      "domain": "data.kingcounty.gov",
+      "dataset": "r878-4sxa",
+      "portal_url": "https://data.kingcounty.gov/d/r878-4sxa",
+      "signal": "new_food_permit",
+      "date_field": "inspection_date",
+      "filter_fields": [
+        "name"
+      ],
+      "mode": "first_appearance",
+      "group_fields": [
+        "business_id",
+        "name",
+        "address",
+        "city",
+        "zip_code"
+      ],
+      "event_label": "First health inspection on record",
+      "fields": {
+        "id": "business_id",
+        "name": "name",
+        "address": "address",
+        "city": "city",
+        "zip": "zip_code",
+        "date": "first_date"
+      }
+    },
+    {
+      "id": "everett_new_businesses",
+      "jurisdiction": "Everett, WA",
+      "state": "WA",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.everettwa.gov",
+      "dataset": "qvfa-2v26",
+      "portal_url": "https://data.everettwa.gov/d/qvfa-2v26",
+      "signal": "new_business_license",
+      "date_field": "firstactivitydate",
+      "filter_fields": [
+        "primarydba",
+        "legalentityname"
+      ],
+      "default_city": "Everett",
+      "fields": {
+        "id": "registration",
+        "name": "primarydba",
+        "alt_name": "legalentityname",
+        "address": "address",
+        "category": "naics",
+        "date": "firstactivitydate"
+      }
+    },
+    {
+      "id": "sacramento_county_business_licenses",
+      "jurisdiction": "Sacramento County, CA",
+      "state": "CA",
+      "level": "county",
+      "type": "arcgis",
+      "url": "https://services1.arcgis.com/5NARefyPVtAeuJPU/arcgis/rest/services/Business_Licenses/FeatureServer/0",
+      "portal_url": "https://data.saccounty.gov/",
+      "signal": "new_business_license",
+      "date_field": "DateFiled",
+      "filter_fields": [
+        "Business_Name"
+      ],
+      "words": [
+        "COFFEE",
+        "ESPRESSO",
+        "CAFE",
+        "ROAST",
+        "BREW",
+        "JAVA",
+        "LATTE",
+        "BEAN",
+        "BOBA",
+        "MATCHA",
+        "TEA HOUSE",
+        "BUBBLE TEA",
+        "STARBUCKS",
+        "DUNKIN",
+        "DUTCH BROS",
+        "7 BREW"
+      ],
+      "_words_note": "Short word list: hosted ArcGIS servers reject very long GET queries",
+      "extra_where": "Location <> 'Home Based'",
+      "fields": {
+        "id": "Record_number",
+        "name": "Business_Name",
+        "address": [
+          "stNumber",
+          "StName",
+          "Suite"
+        ],
+        "city": "CityState",
+        "zip": "Zip",
+        "phone": "Business_Phone",
+        "category": "LicenseActivity",
+        "date": "DateFiled"
+      }
+    },
+    {
+      "id": "sonoma_fictitious_business_names",
+      "jurisdiction": "Sonoma County, CA",
+      "state": "CA",
+      "level": "county",
+      "type": "socrata",
+      "domain": "data.sonomacounty.ca.gov",
+      "dataset": "23z5-fg6m",
+      "portal_url": "https://data.sonomacounty.ca.gov/d/23z5-fg6m",
+      "signal": "business_registration",
+      "date_field": "filing_date",
+      "filter_fields": [
+        "business_names"
+      ],
+      "exclude_status": "aband|withdr",
+      "fields": {
+        "id": "document_number",
+        "name": "business_names",
+        "owner": "registrant_name",
+        "address": "business_address_street",
+        "city": "business_address_city",
+        "state": "business_address_state",
+        "zip": "business_address_zip",
+        "event_type": "document_type",
+        "status": "document_type",
+        "date": "filing_date"
+      }
+    },
+    {
+      "id": "nys_first_inspections",
+      "jurisdiction": "New York State (outside NYC)",
+      "state": "NY",
+      "level": "state",
+      "type": "socrata",
+      "domain": "health.data.ny.gov",
+      "dataset": "2hcc-shji",
+      "portal_url": "https://health.data.ny.gov/d/2hcc-shji",
+      "signal": "new_food_permit",
+      "date_field": "date_of_inspection",
+      "filter_fields": [
+        "operation_name"
+      ],
+      "mode": "first_appearance",
+      "group_fields": [
+        "nys_health_operation_id",
+        "operation_name",
+        "facility_address",
+        "facility_city",
+        "facility_postal_zipcode",
+        "perm_operator_first_name",
+        "perm_operator_last_name"
+      ],
+      "event_label": "First NYS DOH food-service inspection on record",
+      "fields": {
+        "id": "nys_health_operation_id",
+        "name": "operation_name",
+        "owner": [
+          "perm_operator_first_name",
+          "perm_operator_last_name"
+        ],
+        "address": "facility_address",
+        "city": "facility_city",
+        "zip": "facility_postal_zipcode",
+        "date": "first_date"
+      }
     }
   ]
 }

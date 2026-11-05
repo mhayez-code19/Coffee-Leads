@@ -1,0 +1,7 @@
+{
+  "_doc": "Hand-checked contact info, keyed by lead_key (see the CSV or the page's row data). Wins over anything enrich.py finds. Fields: owner, owner_role, email, website, instagram, instagram_conf (verified | high | medium), facebook, tiktok, hours, source (default 'manual').",
+  "78147d54bae5af2d": {"instagram": "thrdcoffeeco", "instagram_conf": "high", "source": "web_search"},
+  "0f92af68f2146514": {"instagram": "dearcoffeenyc", "instagram_conf": "high", "source": "web_search"},
+  "5c8a0a6de77e123f": {"instagram": "tawneycoffee", "instagram_conf": "medium", "source": "web_search"},
+  "f833ee9b149c4e17": {"instagram": "mgk27clubcoffee", "instagram_conf": "medium", "source": "web_search"}
+}
