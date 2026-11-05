@@ -1,0 +1,334 @@
+{
+  "_doc": "One entry per dataset. See README.md for every key. signal = what kind of opening evidence the record is (drives the score).",
+  "sources": [
+    {
+      "id": "chicago_food_license_inspections",
+      "jurisdiction": "Chicago, IL",
+      "state": "IL",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.cityofchicago.org",
+      "dataset": "4ijn-s7e5",
+      "portal_url": "https://data.cityofchicago.org/d/4ijn-s7e5",
+      "signal": "pre_opening_inspection",
+      "date_field": "inspection_date",
+      "extra_where": "inspection_type = 'License'",
+      "filter_fields": [
+        "dba_name",
+        "aka_name",
+        "facility_type"
+      ],
+      "fields": {
+        "id": "inspection_id",
+        "name": "dba_name",
+        "alt_name": "aka_name",
+        "address": "address",
+        "city": "city",
+        "state": "state",
+        "zip": "zip",
+        "category": "facility_type",
+        "event_type": "inspection_type",
+        "status": "results",
+        "lat": "latitude",
+        "lon": "longitude",
+        "date": "inspection_date"
+      }
+    },
+    {
+      "id": "chicago_new_business_licenses",
+      "jurisdiction": "Chicago, IL",
+      "state": "IL",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.cityofchicago.org",
+      "dataset": "r5kz-chrr",
+      "portal_url": "https://data.cityofchicago.org/d/r5kz-chrr",
+      "signal": "new_business_license",
+      "date_field": "license_start_date",
+      "extra_where": "application_type = 'ISSUE'",
+      "filter_fields": [
+        "doing_business_as_name",
+        "legal_name"
+      ],
+      "fields": {
+        "id": "license_id",
+        "name": "doing_business_as_name",
+        "alt_name": "legal_name",
+        "address": "address",
+        "city": "city",
+        "state": "state",
+        "zip": "zip_code",
+        "category": "business_activity",
+        "event_type": "license_description",
+        "status": "license_status",
+        "lat": "latitude",
+        "lon": "longitude",
+        "date": "license_start_date"
+      },
+      "exclude_status": "^(REV|INQ)$"
+    },
+    {
+      "id": "nyc_prepermit_inspections",
+      "jurisdiction": "New York City, NY",
+      "state": "NY",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.cityofnewyork.us",
+      "dataset": "43nn-pn8j",
+      "portal_url": "https://data.cityofnewyork.us/d/43nn-pn8j",
+      "signal": "pre_opening_inspection",
+      "date_field": "inspection_date",
+      "extra_where": "inspection_type like 'Pre-permit%'",
+      "filter_fields": [
+        "dba",
+        "cuisine_description"
+      ],
+      "fields": {
+        "id": "camis",
+        "name": "dba",
+        "address": [
+          "building",
+          "street"
+        ],
+        "city": "boro",
+        "zip": "zipcode",
+        "phone": "phone",
+        "category": "cuisine_description",
+        "event_type": "inspection_type",
+        "lat": "latitude",
+        "lon": "longitude",
+        "date": "inspection_date"
+      }
+    },
+    {
+      "id": "la_new_business_tax_registrations",
+      "jurisdiction": "Los Angeles, CA",
+      "state": "CA",
+      "level": "city",
+      "type": "socrata",
+      "domain": "data.lacity.org",
+      "dataset": "6rrh-rzua",
+      "portal_url": "https://data.lacity.org/d/6rrh-rzua",
+      "signal": "new_business_license",
+      "event_label": "Business tax registration (location start)",
+      "date_field": "location_start_date",
+      "filter_fields": [
+        "dba_name",
+        "business_name",
+        "primary_naics_description"
+      ],
+      "words_note": "NAICS 722515 = Snack and Nonalcoholic Beverage Bars, caught via primary_naics_description",
+      "fields": {
+        "id": "location_account",
+        "name": "dba_name",
+        "alt_name": "business_name",
+        "address": "street_address",
+        "city": "city",
+        "zip": "zip_code",
+        "category": "primary_naics_description",
+        "date": "location_start_date"
+      }
+    },
+    {
+      "id": "austin_first_inspections",
+      "jurisdiction": "Austin, TX",
+      "state": "TX",
+      "level": "city",
+      "type": "socrata",
+      "mode": "first_appearance",
+      "domain": "data.austintexas.gov",
+      "dataset": "ecmv-9xxi",
+      "portal_url": "https://data.austintexas.gov/d/ecmv-9xxi",
+      "signal": "new_food_permit",
+      "event_label": "First health inspection on record",
+      "default_city": "Austin",
+      "date_field": "inspection_date",
+      "group_fields": [
+        "facility_id",
+        "restaurant_name",
+        "address",
+        "zip_code"
+      ],
+      "filter_fields": [
+        "restaurant_name"
+      ],
+      "fields": {
+        "id": "facility_id",
+        "name": "restaurant_name",
+        "address": "address",
+        "zip": "zip_code",
+        "date": "first_date"
+      },
+      "address_has_city": true
+    },
+    {
+      "id": "cincinnati_first_inspections",
+      "jurisdiction": "Cincinnati, OH",
+      "state": "OH",
+      "level": "city",
+      "type": "socrata",
+      "mode": "first_appearance",
+      "domain": "data.cincinnati-oh.gov",
+      "dataset": "rg6p-b3h3",
+      "portal_url": "https://data.cincinnati-oh.gov/d/rg6p-b3h3",
+      "signal": "new_food_permit",
+      "event_label": "First food-safety inspection for this license",
+      "date_field": "action_date",
+      "group_fields": [
+        "license_no",
+        "business_name",
+        "address",
+        "city",
+        "postal_code",
+        "phone_number"
+      ],
+      "filter_fields": [
+        "business_name"
+      ],
+      "fields": {
+        "id": "license_no",
+        "name": "business_name",
+        "address": "address",
+        "city": "city",
+        "zip": "postal_code",
+        "phone": "phone_number",
+        "date": "first_date"
+      }
+    },
+    {
+      "id": "ct_business_registrations",
+      "jurisdiction": "Connecticut (state)",
+      "state": "CT",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.ct.gov",
+      "dataset": "n7gp-d28j",
+      "portal_url": "https://data.ct.gov/d/n7gp-d28j",
+      "signal": "business_registration",
+      "date_field": "date_registration",
+      "filter_fields": [
+        "name",
+        "naics_code"
+      ],
+      "fields": {
+        "id": "accountnumber",
+        "name": "name",
+        "address": "billingstreet",
+        "city": "billingcity",
+        "state": "billingstate",
+        "zip": "billingpostalcode",
+        "category": "naics_code",
+        "event_type": "business_type",
+        "status": "status",
+        "date": "date_registration"
+      },
+      "exclude_status": "dissolved|revoked|withdrawn|forfeited|cancelled"
+    },
+    {
+      "id": "colorado_business_entities",
+      "jurisdiction": "Colorado (state)",
+      "state": "CO",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.colorado.gov",
+      "dataset": "4ykn-tg5h",
+      "portal_url": "https://data.colorado.gov/d/4ykn-tg5h",
+      "signal": "business_registration",
+      "date_field": "entityformdate",
+      "drop_unless_state": "CO",
+      "filter_fields": [
+        "entityname"
+      ],
+      "fields": {
+        "id": "entityid",
+        "name": "entityname",
+        "address": "principaladdress1",
+        "city": "principalcity",
+        "state": "principalstate",
+        "zip": "principalzipcode",
+        "event_type": "entitytype",
+        "status": "entitystatus",
+        "date": "entityformdate"
+      },
+      "exclude_status": "dissolved|withdrawn|expired|administratively"
+    },
+    {
+      "id": "ny_state_new_corporations",
+      "jurisdiction": "New York (state)",
+      "state": "NY",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.ny.gov",
+      "dataset": "n9v6-gdp6",
+      "portal_url": "https://data.ny.gov/d/n9v6-gdp6",
+      "signal": "business_registration",
+      "date_field": "initial_dos_filing_date",
+      "filter_fields": [
+        "current_entity_name"
+      ],
+      "fields": {
+        "id": "dos_id",
+        "name": "current_entity_name",
+        "address": "location_address_1|dos_process_address_1",
+        "city": "location_city|dos_process_city",
+        "state": "location_state|dos_process_state",
+        "zip": "location_zip|dos_process_zip",
+        "event_type": "entity_type",
+        "date": "initial_dos_filing_date"
+      },
+      "_note": "Address is usually the service-of-process address, often the owner or an agent"
+    },
+    {
+      "id": "oregon_new_businesses",
+      "jurisdiction": "Oregon (state)",
+      "state": "OR",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.oregon.gov",
+      "dataset": "esjy-u4fc",
+      "portal_url": "https://data.oregon.gov/d/esjy-u4fc",
+      "signal": "business_registration",
+      "date_field": "registry_date",
+      "filter_fields": [
+        "business_name"
+      ],
+      "_note": "Rolling dataset: only last month's registrations. Run monthly to accumulate.",
+      "fields": {
+        "id": "registry_number",
+        "name": "business_name",
+        "address": "address_",
+        "city": "city",
+        "state": "state",
+        "zip": "zip_code",
+        "event_type": "entity_type",
+        "date": "registry_date"
+      }
+    },
+    {
+      "id": "texas_new_franchise_taxpayers",
+      "jurisdiction": "Texas (state)",
+      "state": "TX",
+      "level": "state",
+      "type": "socrata",
+      "domain": "data.texas.gov",
+      "dataset": "9cir-efmm",
+      "portal_url": "https://data.texas.gov/d/9cir-efmm",
+      "signal": "business_registration",
+      "date_field": "responsibility_beginning_date",
+      "filter_fields": [
+        "taxpayer_name"
+      ],
+      "fields": {
+        "id": "taxpayer_number",
+        "name": "taxpayer_name",
+        "address": "taxpayer_address",
+        "city": "taxpayer_city",
+        "state": "taxpayer_state",
+        "zip": "taxpayer_zip",
+        "date": "responsibility_beginning_date"
+      },
+      "drop_unless_state": "TX",
+      "_note": "taxpayer_address is the mailing address; often the owner, not the shop"
+    }
+  ]
+}
