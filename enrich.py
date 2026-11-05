@@ -45,6 +45,9 @@ import urllib.request
 
 import leads as L
 
+import functools
+print = functools.partial(print, flush=True)  # live logs in GitHub Actions
+
 HERE = L.HERE
 MANUAL_FILE = os.path.join(HERE, "enrichment_manual.json")
 BROWSER_UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -492,7 +495,7 @@ def overpass_state(store, state):
         try:
             req = urllib.request.Request(url, data=urllib.parse.urlencode({"data": q}).encode(),
                                          headers={"User-Agent": L.UA})
-            with urllib.request.urlopen(req, timeout=200) as resp:
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             keep = []
             for e in data.get("elements", []):
@@ -518,7 +521,11 @@ OSM_KEEP = {"name", "brand", "website", "contact:website", "url", "contact:insta
 def step_osm(store):
     states = sorted({l["state"] for l in store.leads.values() if re.fullmatch(r"[A-Z]{2}", l["state"] or "")})
     matched = 0
+    t_end = time.time() + float(os.environ.get("OSM_BUDGET_S", "600"))
     for st in states:
+        if time.time() > t_end:
+            print(f"  osm: time budget used; {st} and later states wait for the next run")
+            break
         try:
             pois = overpass_state(store, st)
         except Exception as e:
@@ -888,8 +895,10 @@ def main():
     t0 = time.time()
     if "owners" in steps:
         step_owners(store, sources)
+        store.resolve(); store.save()
     if "osm" in steps:
         step_osm(store)
+        store.resolve(); store.save()
     if "manual" in steps:
         step_manual(store)  # before search, so hand-checked leads aren't searched
     if "search" in steps:
