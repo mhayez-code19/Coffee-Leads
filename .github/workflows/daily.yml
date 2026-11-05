@@ -1,0 +1,76 @@
+name: Daily leads refresh
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # every day, 11:00 UTC (6-7am US Eastern)
+  workflow_dispatch:
+    inputs:
+      fetch:
+        description: "Pull fresh data from the portals (off = just rebuild the page)"
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: leads
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The database lives on the `data` branch (one commit, overwritten each run),
+      # so first_seen dates carry over from day to day without bloating git history.
+      - name: Restore database
+        run: |
+          if git fetch --depth=1 origin data; then
+            git show origin/data:coffee_leads.db > coffee_leads.db
+            echo "restored $(du -h coffee_leads.db | cut -f1) database"
+          else
+            echo "no data branch yet, starting fresh"
+          fi
+
+      - name: Pull new records
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.fetch) || hashFiles('coffee_leads.db') == ''
+        env:
+          SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+        run: python3 leads.py run --days 365
+
+      - name: Build page
+        run: |
+          python3 export_site.py
+          cp index.html _site/
+
+      - name: Save database to data branch
+        run: |
+          mkdir /tmp/data && cp coffee_leads.db coffee_leads.csv /tmp/data/ 2>/dev/null || true
+          cd /tmp/data
+          git init -q -b data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Leads data $(date -u +%F)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" data
+          
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
