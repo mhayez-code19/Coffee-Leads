@@ -1,0 +1,5 @@
+coffee_leads.db
+coffee_leads.csv
+_site/
+__pycache__/
+*.json.gz
